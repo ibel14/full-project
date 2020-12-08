@@ -1,50 +1,57 @@
-function modal() {
-    // Modal
+function closeModal(modalSelector) {
+    const modal = document.querySelector(modalSelector);
 
-    const modalTrigger = document.querySelectorAll('[data-modal]'),
-          modal = document.querySelector('.modal');
-
-
-    function openModal() { // Создали функцию, чтобы не дублировать код
-            modal.classList.add('show'); 
-            modal.classList.remove('hide');
-            document.body.style.overflow = 'hidden';
-            setInterval(modalTimerId); // Если пользователь сам открыл окно, то мы отчищаем интервал
-            // чтобы окно опять самостоятельно не открылось
+    modal.classList.add('hide');
+    modal.classList.remove('show'); 
+    document.body.style.overflow = '';
     }
 
-    modalTrigger.forEach(btn => {
-        btn.addEventListener('click', openModal); // Вынесли код отсюда в функцию openModal
-    });
-    
-    function closeModal() {
-        modal.classList.add('hide');
-        modal.classList.remove('show'); 
-        document.body.style.overflow = '';
+function openModal(modalSelector, modalTimerId) {
+    const modal = document.querySelector(modalSelector);
+
+    modal.classList.add('show'); 
+    modal.classList.remove('hide');
+    document.body.style.overflow = 'hidden';
+
+    console.log(modalTimerId);
+    if (modalTimerId) {
+        clearInterval(modalTimerId);
     }
+    clearInterval(modalTimerId);
+}
+
+function modal(triggerSelector, modalSelector, modalTimerId) {
+
+    const modalTrigger = document.querySelectorAll(triggerSelector),
+          modal = document.querySelector(modalSelector);
+
+
+          modalTrigger.forEach(btn => {
+            btn.addEventListener('click', () => openModal(modalSelector, modalTimerId));
+        });
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal || e.target.getAttribute('data-close') == '') {
-            closeModal();
+            closeModal(modalSelector);
         }
     });
 
     document.addEventListener('keydown', (e) => {
         if (e.code === "Escape" && modal.classList.contains('show')) {
-            closeModal();
+            closeModal(modalSelector);
         }
     });
 
-    const modalTimerId = setTimeout(openModal, 500000); // Поставили таймер чтобы окно через 3сек появлялось само
-
-    function showModalByScroll() { // Создал функцию и перенес весь код из window....(scroll)
+    function showModalByScroll() {
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
-            openModal();
-            window.removeEventListener('scroll', showModalByScroll); // после первого полного скролла, в след раз
-        } // модальное окно не вылезет благодаря removeEventListener
+            openModal(modalSelector, modalTimerId);
+            window.removeEventListener('scroll', showModalByScroll);
+        }
     }
 
     window.addEventListener('scroll', showModalByScroll); 
 }
 
 export default modal;
+export {closeModal};
+export {openModal};
